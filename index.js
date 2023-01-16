@@ -20,9 +20,37 @@ const client = new MongoClient(uri, {
 // run mongodb
 async function dbConnect() {
   try {
-    await client.connect();
-    console.log("database connected");
+    // await client.connect();
+    // console.log("database connected");
 
+    // database collections here
+    const usersCollection = client.db("surveyBee").collection("users");
+
+    // users post to db
+    app.put("/users", async (req, res) => {
+      try {
+        const user = req.body;
+        const email = user.email;
+        const filter = { email };
+        const options = { upsert: true };
+        const updatedDoc = {
+          $set: {
+            userName: user.userName,
+          },
+        };
+        const result = await usersCollection.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+        if (result.acknowledged) {
+          res.send(result);
+        }
+      } catch (error) {
+        console.log(error);
+        res.send(error.message);
+      }
+    });
 
     // database collections here
   } finally {
