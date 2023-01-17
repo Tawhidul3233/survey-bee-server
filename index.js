@@ -25,6 +25,9 @@ async function dbConnect() {
 
     // database collections here
     const usersCollection = client.db("surveyBee").collection("users");
+    const tempSurveyAudienceCollection = client
+      .db("surveyBee")
+      .collection("tempSurveyAudience");
 
     // users post to db
     app.put("/users", async (req, res) => {
@@ -52,6 +55,21 @@ async function dbConnect() {
       }
     });
 
+    // survey audience get by id
+    app.get("/specificSurveyAudience/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        // console.log(id);
+        const query = { _id: ObjectId(id) };
+        // console.log(query);
+        const specificSurveyAudience =
+          await tempSurveyAudienceCollection.findOne(query);
+        // console.log(specificSurveyAudience);
+        res.send(specificSurveyAudience);
+      } catch (error) {
+        console.log(error);
+      }
+    });
   } finally {
   }
 }
