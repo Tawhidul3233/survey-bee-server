@@ -52,7 +52,6 @@ async function dbConnect() {
       }
     });
 
-    // database collections here
   } finally {
   }
 }
