@@ -55,17 +55,30 @@ async function dbConnect() {
       }
     });
 
-    // survey audience get by id
-    app.get("/specificSurveyAudience/:id", async (req, res) => {
+    // get all survey audience
+    app.get("/surveyAudience", async (req, res) => {
       try {
+        const query = {};
+        const result = await tempSurveyAudienceCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // survey audience get by id
+    app.get("/specificSurveyAudience/:title/:id", async (req, res) => {
+      try {
+        const title = req.params.title;
         const id = req.params.id;
-        // console.log(id);
         const query = { _id: ObjectId(id) };
-        // console.log(query);
         const specificSurveyAudience =
           await tempSurveyAudienceCollection.findOne(query);
-        // console.log(specificSurveyAudience);
-        res.send(specificSurveyAudience);
+        const specificdata = specificSurveyAudience.card.filter(
+          (cardTitle) => title === cardTitle.title
+        );
+
+        res.send(specificdata);
       } catch (error) {
         console.log(error);
       }
