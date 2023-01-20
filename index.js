@@ -55,6 +55,57 @@ async function dbConnect() {
       }
     });
 
+    // get specific user from db
+    app.get("/users/:email", async (req, res) => {
+      try {
+        const email = req.params?.email;
+        // console.log(email)
+        const query = { email: email };
+        const specificUser = await usersCollection.findOne(query);
+        res.send(specificUser);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // update specific user profile
+    app.patch("/users/:id", async (req, res) => {
+      try {
+        const id = req.params?.id;
+        const { firstName, lastName, jobRole, jobLevel } = req.body;
+        const filter = { _id: ObjectId(id) };
+        const options = { upsert: false };
+        const updatedDoc = {
+          $set: {
+            firstName,
+            lastName,
+            jobRole,
+            jobLevel,
+          },
+        };
+        const result = await usersCollection.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+        if (result.modifiedCount) {
+          res.json({
+            success: true,
+            message: "Profile updated successfully",
+            data: result,
+          });
+        } else {
+          res.json({
+            success: true,
+            message: "Profile already updated",
+            data: result,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     // get all survey audience
     app.get("/surveyAudience", async (req, res) => {
       try {
