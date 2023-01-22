@@ -28,6 +28,9 @@ async function dbConnect() {
     const tempSurveyAudienceCollection = client
       .db("surveyBee")
       .collection("tempSurveyAudience");
+    const userCreatedSurveyCollections = client
+      .db("surveyBee")
+      .collection("usersCreatedSurveys");
 
     // users post to db
     app.put("/users", async (req, res) => {
@@ -132,6 +135,67 @@ async function dbConnect() {
         res.send(specificdata);
       } catch (error) {
         console.log(error);
+      }
+    });
+
+    // save user survey questions
+    app.post("/userCreatedSurveyQuestions", async (req, res) => {
+      try {
+        const info = req.body;
+        const result = await userCreatedSurveyCollections.insertOne(info);
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // update create survey questions
+    app.put("/userCreatedSurveyQuestions", async (req, res) => {
+      try {
+        const surveyData = req.body;
+        const createdSurveyUserId = surveyData?.id;
+        const id = { _id: ObjectId(createdSurveyUserId) };
+        const createdSurveyUserQuestion = surveyData?.questions;
+        const createdSurveyUserQuestionType = surveyData?.questionType;
+        const questionsAndTypes = {
+          questions: createdSurveyUserQuestion,
+          questionsType: createdSurveyUserQuestionType,
+        };
+        const filter = id;
+        const options = { upsert: false };
+        const updatedDoc = {
+          $push: {
+            questionsAndTypes,
+          },
+        };
+        const result = await userCreatedSurveyCollections.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+        if (result.acknowledged) {
+          res.send(result);
+        }
+      } catch (error) {
+        res.send(error.message);
+      }
+    });
+
+    // get specific user survey questions and show
+    app.get("/userCreatedSurveyQuestions/:email", async (req, res) => {
+      try {
+        const email = req.params?.email;
+        const filter = {
+          email,
+        };
+        const questions = await userCreatedSurveyCollections
+          .find(filter)
+          .toArray();
+        if (questions) {
+          res.send(questions.slice(-1));
+        }
+      } catch (error) {
+        res.send(error?.message);
       }
     });
   } finally {
