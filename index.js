@@ -28,6 +28,9 @@ async function dbConnect() {
     const tempSurveyAudienceCollection = client
       .db("surveyBee")
       .collection("tempSurveyAudience");
+    const userCreatedSurveyCollections = client
+      .db("surveyBee")
+      .collection("usersCreatedSurveys");
 
     // users post to db
     app.put("/users", async (req, res) => {
@@ -130,6 +133,149 @@ async function dbConnect() {
         );
 
         res.send(specificdata);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // save user survey questions
+    app.post("/userCreatedSurveyQuestions", async (req, res) => {
+      try {
+        const info = req.body;
+        const result = await userCreatedSurveyCollections.insertOne(info);
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // update create survey questions
+    app.put("/userCreatedSurveyQuestions", async (req, res) => {
+      try {
+        const surveyData = req.body;
+        const createdSurveyUserId = surveyData?.id;
+        const id = { _id: ObjectId(createdSurveyUserId) };
+        const createdSurveyUserQuestion = surveyData?.questions;
+        const createdSurveyUserQuestionType = surveyData?.questionType;
+        const surveyModifiedTime = surveyData?.questionType;
+        const questionsAndTypes = {
+          questions: createdSurveyUserQuestion,
+          questionsType: createdSurveyUserQuestionType,
+        };
+        const filter = id;
+        const options = { upsert: false };
+        const updatedDoc = {
+          $set: {
+            surveyModifiedTime,
+          },
+          $push: {
+            questionsAndTypes,
+          },
+        };
+        const result = await userCreatedSurveyCollections.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+        if (result.acknowledged) {
+          res.send(result);
+        }
+      } catch (error) {
+        res.send(error.message);
+      }
+    });
+
+    // update create survey questions after deleteing
+    app.patch("/surveyQdelete", async (req, res) => {
+      try {
+        const { targetId, targetQuestion, targetQType } = req.body;
+        // console.log(targetId, targetQuestion, targetQType);
+        const filter = { _id: ObjectId(targetId) };
+        const options = { upsert: false };
+        const questionsAndTypes = {
+          questions: targetQuestion,
+          questionsType: targetQType,
+        };
+        const updatedDoc = {
+          $pull: {
+            questionsAndTypes,
+          },
+        };
+        const result = await userCreatedSurveyCollections.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+
+        if (result?.modifiedCount) {
+          res.send(result);
+        } else {
+          res.json({
+            status: false,
+            message: "Failed",
+          });
+        }
+      } catch (error) {
+        res.send(error.message);
+      }
+    });
+
+    // get specific user last survey questions and show
+    app.get("/userCreatedSurveyQuestions/:email", async (req, res) => {
+      try {
+        const email = req.params?.email;
+        const filter = {
+          email,
+        };
+        const questions = await userCreatedSurveyCollections
+          .find(filter)
+          .sort({ surveyCreateTimeMl: -1 })
+          .limit(1)
+          .toArray();
+        if (questions) {
+          // res.send(questions.slice(-1));
+          res.send(questions);
+        }
+      } catch (error) {
+        res.send(error?.message);
+      }
+    });
+
+    // get all surveys for a specific user
+    app.get("/userCreatedSurveyQuestions", async (req, res) => {
+      try {
+        const query = { email: req.query.email };
+        const userCreatedSurvey = await userCreatedSurveyCollections
+          .find(query)
+          .sort({ surveyCreateTimeMl: -1 })
+          .toArray();
+        if (userCreatedSurvey) {
+          res.json({
+            status: true,
+            message: "userCreatedSurvey got successfully",
+            data: userCreatedSurvey,
+          });
+        } else {
+          res.json({ status: false, message: "data got failed", data: [] });
+        }
+      } catch (error) {
+        res.json({ status: false, message: error.message });
+      }
+    });
+
+    // delete survey by user
+    app.delete("/deleteSurvey/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        // console.log(id);
+        const query = { _id: new ObjectId(id) };
+        // console.log(query);
+        const deleteSurvey = await userCreatedSurveyCollections.deleteOne(
+          query
+        );
+        if (deleteSurvey?.deletedCount) {
+          res.send(deleteSurvey);
+        }
       } catch (error) {
         console.log(error);
       }
