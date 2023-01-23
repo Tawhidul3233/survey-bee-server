@@ -181,7 +181,42 @@ async function dbConnect() {
       }
     });
 
-    // get specific user survey questions and show
+    // update create survey questions after deleteing
+    app.patch("/surveyQdelete", async (req, res) => {
+      try {
+        const { targetId, targetQuestion, targetQType } = req.body;
+        // console.log(targetId, targetQuestion, targetQType);
+        const filter = { _id: ObjectId(targetId) };
+        const options = { upsert: false };
+        const questionsAndTypes = {
+          questions: targetQuestion,
+          questionsType: targetQType,
+        };
+        const updatedDoc = {
+          $pull: {
+            questionsAndTypes,
+          },
+        };
+        const result = await userCreatedSurveyCollections.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+
+        if (result?.modifiedCount) {
+          res.send(result);
+        } else {
+          res.json({
+            status: false,
+            message: "Failed",
+          });
+        }
+      } catch (error) {
+        res.send(error.message);
+      }
+    });
+
+    // get specific user last survey questions and show
     app.get("/userCreatedSurveyQuestions/:email", async (req, res) => {
       try {
         const email = req.params?.email;
