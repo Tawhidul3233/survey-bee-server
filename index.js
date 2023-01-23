@@ -157,6 +157,7 @@ async function dbConnect() {
         const id = { _id: ObjectId(createdSurveyUserId) };
         const createdSurveyUserQuestion = surveyData?.questions;
         const createdSurveyUserQuestionType = surveyData?.questionType;
+        const surveyModifiedTime = surveyData?.questionType;
         const questionsAndTypes = {
           questions: createdSurveyUserQuestion,
           questionsType: createdSurveyUserQuestionType,
@@ -164,6 +165,9 @@ async function dbConnect() {
         const filter = id;
         const options = { upsert: false };
         const updatedDoc = {
+          $set: {
+            surveyModifiedTime,
+          },
           $push: {
             questionsAndTypes,
           },
@@ -225,12 +229,55 @@ async function dbConnect() {
         };
         const questions = await userCreatedSurveyCollections
           .find(filter)
+          .sort({ surveyCreateTimeMl: -1 })
+          .limit(1)
           .toArray();
         if (questions) {
-          res.send(questions.slice(-1));
+          // res.send(questions.slice(-1));
+          res.send(questions);
         }
       } catch (error) {
         res.send(error?.message);
+      }
+    });
+
+    // get all surveys for a specific user
+    app.get("/userCreatedSurveyQuestions", async (req, res) => {
+      try {
+        const query = { email: req.query.email };
+        const userCreatedSurvey = await userCreatedSurveyCollections
+          .find(query)
+          .sort({ surveyCreateTimeMl: -1 })
+          .toArray();
+        if (userCreatedSurvey) {
+          res.json({
+            status: true,
+            message: "userCreatedSurvey got successfully",
+            data: userCreatedSurvey,
+          });
+        } else {
+          res.json({ status: false, message: "data got failed", data: [] });
+        }
+      } catch (error) {
+        res.json({ status: false, message: error.message });
+      }
+    });
+
+    // delete survey by user
+    app.delete("/deleteSurvey/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        // console.log(id);
+        const query = { _id: new ObjectId(id) };
+        // console.log(query);
+        const deleteSurvey = await userCreatedSurveyCollections.deleteOne(
+          query
+        );
+        if (deleteSurvey?.deletedCount) {
+          res.send(deleteSurvey);
+        }
+      } catch (error) {
+        console.log(error);
       }
     });
   } finally {
