@@ -157,7 +157,7 @@ async function dbConnect() {
         const id = { _id: ObjectId(createdSurveyUserId) };
         const createdSurveyUserQuestion = surveyData?.questions;
         const createdSurveyUserQuestionType = surveyData?.questionType;
-        const surveyModifiedTime = surveyData?.questionType;
+        const surveyModifiedTime = surveyData?.surveyModifiedTime;
         const questionsAndTypes = {
           questions: createdSurveyUserQuestion,
           questionsType: createdSurveyUserQuestionType,
@@ -276,6 +276,20 @@ async function dbConnect() {
         if (deleteSurvey?.deletedCount) {
           res.send(deleteSurvey);
         }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // edit recent survey
+    app.get("/editsurvey/:id", async (req, res) => {
+      try {
+        const id = req.params?.id;
+        const survey = await userCreatedSurveyCollections.findOne({
+          _id: ObjectId(id),
+        });
+        // console.log(survey);
+        res.send(survey);
       } catch (error) {
         console.log(error);
       }
