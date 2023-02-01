@@ -109,6 +109,19 @@ async function dbConnect() {
       }
     });
 
+    // get admin
+    app.get("/users/admin/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const user = await usersCollection.findOne({email});
+        // console.log(user)
+        res.send({ isAdmin: user?.role === "admin" });
+      } catch (error) {
+        console.log(error);
+        res.send(error.message);
+      }
+    });
+
     // get all survey audience
     app.get("/surveyAudience", async (req, res) => {
       try {
@@ -241,7 +254,7 @@ async function dbConnect() {
       }
     });
 
-    // get all surveys for a specific user
+    // get all survey for a specific user
     app.get("/userCreatedSurveyQuestions", async (req, res) => {
       try {
         const query = { email: req.query.email };
