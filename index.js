@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { query } = require("express");
 require("dotenv").config();
 const app = express();
 
@@ -32,6 +33,13 @@ async function dbConnect() {
       .db("surveyBee")
       .collection("usersCreatedSurveys");
 
+    const surveyTemplateCategoryCollection = client
+      .db("surveyBee")
+      .collection("templateCategorys");
+
+    const surveyTemplateCollection = client
+      .db("surveyBee")
+      .collection("surveyTemplate");
     // users post to db
     app.put("/users", async (req, res) => {
       try {
@@ -113,7 +121,7 @@ async function dbConnect() {
     app.get("/users/admin/:email", async (req, res) => {
       try {
         const email = req.params.email;
-        const user = await usersCollection.findOne({email});
+        const user = await usersCollection.findOne({ email });
         // console.log(user)
         res.send({ isAdmin: user?.role === "admin" });
       } catch (error) {
@@ -303,6 +311,44 @@ async function dbConnect() {
         });
         // console.log(survey);
         res.send(survey);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    //servey Category
+    app.get("/surveyCategory", async (req, res) => {
+      try {
+        const query = {};
+        const surveyTemplateCategory = await surveyTemplateCategoryCollection
+          .find(query)
+          .toArray();
+        res.send(surveyTemplateCategory);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // get all survey template
+    app.get("/surveyTemplate", async (req, res) => {
+      try {
+        const query = {};
+        const surveyTemplate = await surveyTemplateCollection
+          .find(query)
+          .toArray();
+        res.send(surveyTemplate);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // get specific survey template
+    app.get("/surveyTemplate/:id", async (req, res) => {
+      try {
+        const id = req.params?.id;
+        const query = { _id: ObjectId(id) };
+        const surveyTemplate = await surveyTemplateCollection.findOne(query);
+        res.send(surveyTemplate);
       } catch (error) {
         console.log(error);
       }
