@@ -58,6 +58,7 @@ async function dbConnect() {
       }
     });
 
+    
     // get specific user from db
     app.get("/users/:email", async (req, res) => {
       try {
