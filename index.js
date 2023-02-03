@@ -341,6 +341,18 @@ async function dbConnect() {
         console.log(error);
       }
     });
+
+    // get specific survey template
+    app.get("/surveyTemplate/:id", async (req, res) => {
+      try {
+        const id = req.params?.id;
+        const query = { _id: ObjectId(id) };
+        const surveyTemplate = await surveyTemplateCollection.findOne(query);
+        res.send(surveyTemplate);
+      } catch (error) {
+        console.log(error);
+      }
+    });
   } finally {
   }
 }
