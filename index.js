@@ -84,7 +84,7 @@ async function dbConnect() {
     app.patch("/users/:id", async (req, res) => {
       try {
         const id = req.params?.id;
-        const { firstName, lastName, jobRole, jobLevel } = req.body;
+        const { firstName,jobLevel,lastName,jobRole } = req.body;
         const filter = { _id: ObjectId(id) };
         const options = { upsert: false };
         const updatedDoc = {
