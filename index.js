@@ -60,8 +60,12 @@ async function dbConnect() {
       }
     });
 
+<<<<<<< HEAD
 
     // get specific user from mongodb
+=======
+    // get specific user from db
+>>>>>>> 496ef6306bacac18c072369fee340f30582e3e44
     app.get("/users/:email", async (req, res) => {
       try {
         const email = req.params?.email;
@@ -78,7 +82,7 @@ async function dbConnect() {
     app.patch("/users/:id", async (req, res) => {
       try {
         const id = req.params?.id;
-        const { firstName, lastName, jobRole, jobLevel } = req.body;
+        const { firstName, jobLevel, lastName, jobRole } = req.body;
         const filter = { _id: ObjectId(id) };
         const options = { upsert: false };
         const updatedDoc = {
@@ -340,6 +344,18 @@ async function dbConnect() {
         const query = { _id: ObjectId(id) };
         const surveyTemplate = await surveyTemplateCollection.findOne(query);
         res.send(surveyTemplate);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // for public survey link
+    app.get("PublicSurvey/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const survey = await surveyTemplateCollection.findOne(query);
+        res.send(survey);
       } catch (error) {
         console.log(error);
       }
