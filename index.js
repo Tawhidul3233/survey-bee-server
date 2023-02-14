@@ -60,12 +60,10 @@ async function dbConnect() {
       }
     });
 
-<<<<<<< HEAD
+
 
     // get specific user from mongodb
-=======
-    // get specific user from db
->>>>>>> 496ef6306bacac18c072369fee340f30582e3e44
+>>>>>>>>> Temporary merge branch 2
     app.get("/users/:email", async (req, res) => {
       try {
         const email = req.params?.email;
