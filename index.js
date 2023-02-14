@@ -13,8 +13,7 @@ app.use(express.json());
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useNewUrlParser: true, useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
 
@@ -23,24 +22,23 @@ async function dbConnect() {
   try {
     // await client.connect();
     // console.log("database connected");
-
     // database collections here
+
     const usersCollection = client.db("surveyBee").collection("users");
-    const tempSurveyAudienceCollection = client
-      .db("surveyBee")
-      .collection("tempSurveyAudience");
-    const userCreatedSurveyCollections = client
-      .db("surveyBee")
-      .collection("usersCreatedSurveys");
 
-    const surveyTemplateCategoryCollection = client
-      .db("surveyBee")
-      .collection("templateCategorys");
+    const tempSurveyAudienceCollection = client.db("surveyBee").collection("tempSurveyAudience");
 
-    const surveyTemplateCollection = client
-      .db("surveyBee")
-      .collection("surveyTemplate");
-    // users post to db
+    const userCreatedSurveyCollections = client.db("surveyBee").collection("usersCreatedSurveys");
+
+    const surveyTemplateCategoryCollection = client.db("surveyBee").collection("templateCategorys");
+
+    const surveyTemplateCollection = client.db("surveyBee").collection("surveyTemplate");
+
+
+
+    // Oliullah vi start.....................
+
+    // users post to mongodb
     app.put("/users", async (req, res) => {
       try {
         const user = req.body;
@@ -52,11 +50,7 @@ async function dbConnect() {
             userName: user.userName,
           },
         };
-        const result = await usersCollection.updateOne(
-          filter,
-          updatedDoc,
-          options
-        );
+        const result = await usersCollection.updateOne(filter, updatedDoc, options);
         if (result.acknowledged) {
           res.send(result);
         }
@@ -66,12 +60,11 @@ async function dbConnect() {
       }
     });
 
-    
-    // get specific user from db
+
+    // get specific user from mongodb
     app.get("/users/:email", async (req, res) => {
       try {
         const email = req.params?.email;
-        // console.log(email)
         const query = { email: email };
         const specificUser = await usersCollection.findOne(query);
         res.send(specificUser);
@@ -80,7 +73,8 @@ async function dbConnect() {
       }
     });
 
-    // update specific user profile
+
+    // update specific user profile......used clint site user Dashboard modal
     app.patch("/users/:id", async (req, res) => {
       try {
         const id = req.params?.id;
@@ -95,11 +89,7 @@ async function dbConnect() {
             jobLevel,
           },
         };
-        const result = await usersCollection.updateOne(
-          filter,
-          updatedDoc,
-          options
-        );
+        const result = await usersCollection.updateOne(filter, updatedDoc, options);
         if (result.modifiedCount) {
           res.json({
             success: true,
@@ -118,12 +108,12 @@ async function dbConnect() {
       }
     });
 
+
     // get admin
     app.get("/users/admin/:email", async (req, res) => {
       try {
         const email = req.params.email;
         const user = await usersCollection.findOne({ email });
-        // console.log(user)
         res.send({ isAdmin: user?.role === "admin" });
       } catch (error) {
         console.log(error);
@@ -131,34 +121,6 @@ async function dbConnect() {
       }
     });
 
-    // get all survey audience
-    app.get("/surveyAudience", async (req, res) => {
-      try {
-        const query = {};
-        const result = await tempSurveyAudienceCollection.find(query).toArray();
-        res.send(result);
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
-    // survey audience get by id
-    app.get("/specificSurveyAudience/:title/:id", async (req, res) => {
-      try {
-        const title = req.params.title;
-        const id = req.params.id;
-        const query = { _id: ObjectId(id) };
-        const specificSurveyAudience =
-          await tempSurveyAudienceCollection.findOne(query);
-        const specificdata = specificSurveyAudience.card.filter(
-          (cardTitle) => title === cardTitle.title
-        );
-
-        res.send(specificdata);
-      } catch (error) {
-        console.log(error);
-      }
-    });
 
     // save user survey questions
     app.post("/userCreatedSurveyQuestions", async (req, res) => {
@@ -177,12 +139,14 @@ async function dbConnect() {
         const surveyData = req.body;
         const createdSurveyUserId = surveyData?.id;
         const id = { _id: ObjectId(createdSurveyUserId) };
+        const optionAnswer = surveyData?.optinoValue;
         const createdSurveyUserQuestion = surveyData?.questions;
         const createdSurveyUserQuestionType = surveyData?.questionType;
         const surveyModifiedTime = surveyData?.surveyModifiedTime;
         const questionsAndTypes = {
           questions: createdSurveyUserQuestion,
           questionsType: createdSurveyUserQuestionType,
+          optionAnswers: optionAnswer
         };
         const filter = id;
         const options = { upsert: false };
@@ -194,11 +158,7 @@ async function dbConnect() {
             questionsAndTypes,
           },
         };
-        const result = await userCreatedSurveyCollections.updateOne(
-          filter,
-          updatedDoc,
-          options
-        );
+        const result = await userCreatedSurveyCollections.updateOne(filter,updatedDoc,options);
         if (result.acknowledged) {
           res.send(result);
         }
@@ -223,11 +183,7 @@ async function dbConnect() {
             questionsAndTypes,
           },
         };
-        const result = await userCreatedSurveyCollections.updateOne(
-          filter,
-          updatedDoc,
-          options
-        );
+        const result = await userCreatedSurveyCollections.updateOne(filter,updatedDoc,options);
 
         if (result?.modifiedCount) {
           res.send(result);
@@ -242,7 +198,7 @@ async function dbConnect() {
       }
     });
 
-    // get specific user last survey questions and show
+    // get specific user last survey questions and show......used clint site recent survey
     app.get("/userCreatedSurveyQuestions/:email", async (req, res) => {
       try {
         const email = req.params?.email;
@@ -263,7 +219,7 @@ async function dbConnect() {
       }
     });
 
-    // get all survey for a specific user
+    // get all survey for a specific user ...... Clint site My survey option used
     app.get("/userCreatedSurveyQuestions", async (req, res) => {
       try {
         const query = { email: req.query.email };
@@ -317,6 +273,40 @@ async function dbConnect() {
       }
     });
 
+    // Oliullah vi end .......................
+
+
+
+
+    // Tuhin vi start ......................
+
+    // get all survey audience
+    app.get("/surveyAudience", async (req, res) => {
+      try {
+        const query = {};
+        const result = await tempSurveyAudienceCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // survey audience get by id
+    app.get("/specificSurveyAudience/:title/:id", async (req, res) => {
+      try {
+        const title = req.params.title;
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const specificSurveyAudience = await tempSurveyAudienceCollection.findOne(query);
+        const specificdata = specificSurveyAudience.card.filter(
+          (cardTitle) => title === cardTitle.title
+        );
+        res.send(specificdata);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     //servey Category
     app.get("/surveyCategory", async (req, res) => {
       try {
@@ -357,6 +347,11 @@ async function dbConnect() {
   } finally {
   }
 }
+
+
+// Tuhin vi end ....................
+
+
 dbConnect().catch((err) => console.log(err));
 
 // test server endpoint
