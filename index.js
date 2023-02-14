@@ -63,7 +63,7 @@ async function dbConnect() {
 
 
     // get specific user from mongodb
->>>>>>>>> Temporary merge branch 2
+
     app.get("/users/:email", async (req, res) => {
       try {
         const email = req.params?.email;
