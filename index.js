@@ -128,6 +128,7 @@ async function dbConnect() {
     app.post("/userCreatedSurveyQuestions", async (req, res) => {
       try {
         const info = req.body;
+        // console.log(info)
         const result = await userCreatedSurveyCollections.insertOne(info);
         res.send(result);
       } catch (error) {
@@ -139,12 +140,14 @@ async function dbConnect() {
     app.put("/userCreatedSurveyQuestions", async (req, res) => {
       try {
         const surveyData = req.body;
+        // console.log(req.body)
         const createdSurveyUserId = surveyData?.id;
         const id = { _id: ObjectId(createdSurveyUserId) };
-        const optionAnswer = surveyData?.optinoValue;
+        const optionAnswer = surveyData?.optionValue;
         const createdSurveyUserQuestion = surveyData?.questions;
         const createdSurveyUserQuestionType = surveyData?.questionType;
         const surveyModifiedTime = surveyData?.surveyModifiedTime;
+        console.log(surveyData?.optionValue)
         const questionsAndTypes = {
           questions: createdSurveyUserQuestion,
           questionsType: createdSurveyUserQuestionType,
