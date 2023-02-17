@@ -44,8 +44,6 @@ async function dbConnect() {
     const surveyDataCollection = client
       .db("surveyBee")
       .collection("surveyData");
-
-    const surveyTemplateCollection = client.db("surveyBee").collection("surveyTemplate");
     const surveyOrderCollection = client.db("surveyBee").collection("surveyOrder");
 
 
