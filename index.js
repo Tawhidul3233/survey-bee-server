@@ -40,6 +40,11 @@ async function dbConnect() {
     const surveyTemplateCollection = client
       .db("surveyBee")
       .collection("surveyTemplate");
+
+    const surveyDataCollection = client
+      .db("surveyBee")
+      .collection("surveyData");
+
     // users post to db
     app.put("/users", async (req, res) => {
       try {
