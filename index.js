@@ -29,17 +29,27 @@ async function dbConnect() {
     const tempSurveyAudienceCollection = client
       .db("surveyBee")
       .collection("tempSurveyAudience");
+
+    // user Created survey collection
     const userCreatedSurveyCollections = client
       .db("surveyBee")
       .collection("usersCreatedSurveys");
 
+    // surveyTemplateCategory collection
     const surveyTemplateCategoryCollection = client
       .db("surveyBee")
       .collection("templateCategorys");
 
+    // survey template collection
     const surveyTemplateCollection = client
       .db("surveyBee")
       .collection("surveyTemplate");
+
+    // surveyData Collection
+    const surveyDataCollection = client
+      .db("surveyBee")
+      .collection("surveyData");
+
     // users post to db
     app.put("/users", async (req, res) => {
       try {
@@ -355,12 +365,24 @@ async function dbConnect() {
     });
 
     // for public survey link
-    app.get("PublicSurvey/:id", async (req, res) => {
+    app.get("/PublicSurvey/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const query = { _id: ObjectId(id) };
         const survey = await surveyTemplateCollection.findOne(query);
         res.send(survey);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    app.post("/surveyData", async (req, res) => {
+      try {
+        const surveyData = req.body;
+        const surveyDataInsert = await surveyDataCollection.insertOne(
+          surveyData
+        );
+        res.send(surveyDataInsert);
       } catch (error) {
         console.log(error);
       }
