@@ -45,7 +45,14 @@ async function dbConnect() {
       .db("surveyBee")
       .collection("surveyData");
 
-    // users post to db
+    const surveyTemplateCollection = client.db("surveyBee").collection("surveyTemplate");
+    const surveyOrderCollection = client.db("surveyBee").collection("surveyOrder");
+
+
+
+    // Oliullah vi start.....................
+
+    // users post to mongodb
     app.put("/users", async (req, res) => {
       try {
         const user = req.body;
@@ -138,6 +145,7 @@ async function dbConnect() {
     app.post("/userCreatedSurveyQuestions", async (req, res) => {
       try {
         const info = req.body;
+        // console.log(info)
         const result = await userCreatedSurveyCollections.insertOne(info);
         res.send(result);
       } catch (error) {
@@ -149,12 +157,14 @@ async function dbConnect() {
     app.put("/userCreatedSurveyQuestions", async (req, res) => {
       try {
         const surveyData = req.body;
+        // console.log(req.body)
         const createdSurveyUserId = surveyData?.id;
         const id = { _id: ObjectId(createdSurveyUserId) };
-        const optionAnswer = surveyData?.optinoValue;
+        const optionAnswer = surveyData?.optionValue;
         const createdSurveyUserQuestion = surveyData?.questions;
         const createdSurveyUserQuestionType = surveyData?.questionType;
         const surveyModifiedTime = surveyData?.surveyModifiedTime;
+        console.log(surveyData?.optionValue)
         const questionsAndTypes = {
           questions: createdSurveyUserQuestion,
           questionsType: createdSurveyUserQuestionType,
@@ -293,7 +303,46 @@ async function dbConnect() {
       }
     });
 
-    // Oliullah vi end .......................
+    app.get('/users', async(req ,res)=>{
+      const filter = {}
+      const result = await usersCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+    app.post("/buysurvey", async (req, res) => {
+        const info = req.body;
+        const result = await surveyOrderCollection.insertOne(info);
+        res.send(result);
+    });
+
+    app.get("/buysurvey/:id", async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id : ObjectId(id)}
+      const result = await userCreatedSurveyCollections.findOne(filter);
+      res.send(result);
+    })
+
+    app.get("/buysurvey",async(req, res)=>{
+      const filter = {};
+      const result = await surveyOrderCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+
+    app.get('/surveyhistory/:id', async ( req , res)=>{
+      const id = req.params.id;
+      const filter = {orderId:id} 
+      const result = await surveyOrderCollection.find(filter).toArray()
+      res.send(result)
+    })
+    
+
+
+
+
+
+
+
 
     // Tuhin vi start ......................
 
