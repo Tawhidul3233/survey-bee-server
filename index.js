@@ -33,6 +33,7 @@ async function dbConnect() {
     const surveyTemplateCategoryCollection = client.db("surveyBee").collection("templateCategorys");
 
     const surveyTemplateCollection = client.db("surveyBee").collection("surveyTemplate");
+    const surveyOrderCollection = client.db("surveyBee").collection("surveyOrder");
 
 
 
@@ -278,7 +279,43 @@ async function dbConnect() {
       }
     });
 
-    // Oliullah vi end .......................
+    app.get('/users', async(req ,res)=>{
+      const filter = {}
+      const result = await usersCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+    app.post("/buysurvey", async (req, res) => {
+        const info = req.body;
+        const result = await surveyOrderCollection.insertOne(info);
+        res.send(result);
+    });
+
+    app.get("/buysurvey/:id", async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id : ObjectId(id)}
+      const result = await userCreatedSurveyCollections.findOne(filter);
+      res.send(result);
+    })
+
+    app.get("/buysurvey",async(req, res)=>{
+      const filter = {};
+      const result = await surveyOrderCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+
+    app.get('/surveyhistory/:id', async ( req , res)=>{
+      const id = req.params.id;
+      const filter = {orderId:id} 
+      const result = await surveyOrderCollection.find(filter).toArray()
+      res.send(result)
+    })
+    
+
+
+
+
 
 
 
@@ -351,7 +388,7 @@ async function dbConnect() {
     });
 
     // for public survey link
-    app.get("PublicSurvey/:id", async (req, res) => {
+    app.get("/PublicSurvey/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const query = { _id: ObjectId(id) };
