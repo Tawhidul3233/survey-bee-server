@@ -26,21 +26,28 @@ async function dbConnect() {
     // database collections here
 
     const usersCollection = client.db("surveyBee").collection("users");
+
+    //survey audience collection
     const tempSurveyAudienceCollection = client
       .db("surveyBee")
       .collection("tempSurveyAudience");
+
+    // user created survey collection
     const userCreatedSurveyCollections = client
       .db("surveyBee")
       .collection("usersCreatedSurveys");
 
+    // survey template category collection
     const surveyTemplateCategoryCollection = client
       .db("surveyBee")
       .collection("templateCategorys");
 
+    // survey template collection
     const surveyTemplateCollection = client
       .db("surveyBee")
       .collection("surveyTemplate");
 
+    // save survey data  collection
     const surveyDataCollection = client
       .db("surveyBee")
       .collection("surveyData");
@@ -375,6 +382,7 @@ async function dbConnect() {
       }
     });
 
+    // save survey data
     app.post("/surveyData", async (req, res) => {
       try {
         const surveyData = req.body;
