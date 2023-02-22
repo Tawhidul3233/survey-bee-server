@@ -236,7 +236,7 @@ async function dbConnect() {
     // get specific user last survey questions and show......used clint site recent survey
     app.get("/userCreatedSurveyQuestions/:email", async (req, res) => {
       try {
-        const email = req.params?.email;
+        const email = req?.params?.email;
         const filter = {
           email,
         };
@@ -255,12 +255,12 @@ async function dbConnect() {
     });
 
     // get all survey for a specific user ...... Clint site My survey option used
-    app.get("/userCreatedSurveyQuestions", async (req, res) => {
+    app.get("/myallsurvey/:email", async (req, res) => {
       try {
-        const query = { email: req.query.email };
+        const email = req.params.email ;
+        const filter = {email : email}
         const userCreatedSurvey = await userCreatedSurveyCollections
-          .find(query)
-          .sort({ surveyCreateTimeMl: -1 })
+          .find(filter)
           .toArray();
         if (userCreatedSurvey) {
           res.json({
@@ -275,6 +275,7 @@ async function dbConnect() {
         res.json({ status: false, message: error.message });
       }
     });
+
 
     // delete survey by user
     app.delete("/deleteSurvey/:id", async (req, res) => {
