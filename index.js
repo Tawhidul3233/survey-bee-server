@@ -257,8 +257,8 @@ async function dbConnect() {
     // get all survey for a specific user ...... Clint site My survey option used
     app.get("/myallsurvey/:email", async (req, res) => {
       try {
-        const email = req.params.email ;
-        const filter = {email : email}
+        const email = req.params.email;
+        const filter = { email: email }
         const userCreatedSurvey = await userCreatedSurveyCollections
           .find(filter)
           .toArray();
@@ -309,39 +309,49 @@ async function dbConnect() {
       }
     });
 
-    app.get('/users', async(req ,res)=>{
+    app.get('/users', async (req, res) => {
       const filter = {}
       const result = await usersCollection.find(filter).toArray()
       res.send(result)
     })
 
     app.post("/buysurvey", async (req, res) => {
-        const info = req.body;
-        const result = await surveyOrderCollection.insertOne(info);
-        res.send(result);
+      const info = req.body;
+      const result = await surveyOrderCollection.insertOne(info);
+      res.send(result);
     });
 
-    app.get("/buysurvey/:id", async(req, res) => {
+    app.get("/buysurvey/:id", async (req, res) => {
       const id = req.params.id;
-      const filter = {_id : ObjectId(id)}
+      const filter = { _id: ObjectId(id) }
       const result = await userCreatedSurveyCollections.findOne(filter);
       res.send(result);
     })
 
-    app.get("/buysurvey",async(req, res)=>{
+    app.get("/buysurvey", async (req, res) => {
       const filter = {};
       const result = await surveyOrderCollection.find(filter).toArray()
       res.send(result)
     })
 
 
-    app.get('/surveyhistory/:id', async ( req , res)=>{
+    app.get('/surveyhistory/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {orderId:id} 
+      const filter = { orderId: id }
       const result = await surveyOrderCollection.find(filter).toArray()
       res.send(result)
     })
-    
+
+
+    app.delete('/deleteuser/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const query = { _id: ObjectId(id) };
+      const deleteUser = await usersCollection.deleteOne(query);
+      if (deleteUser?.deletedCount) {
+        res.send(deleteUser);
+      }
+    })
 
 
 
