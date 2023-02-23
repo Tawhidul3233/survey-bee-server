@@ -354,6 +354,21 @@ async function dbConnect() {
     })
 
 
+    // update survey approve info
+    app.put('/buysurveyapprove/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) }
+      const option = { upsert: true }
+      const updateBill = {
+        $set: {
+          approve:true
+        }
+      }
+      const result = await surveyOrderCollection.updateOne(filter, updateBill, option)
+      res.send(result)
+    })
+
+
 
 
 
